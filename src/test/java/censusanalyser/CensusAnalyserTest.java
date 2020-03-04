@@ -42,6 +42,15 @@ public class CensusAnalyserTest {
     }
 
     @Test
+    public void givenIndianCensusData_WhenSortedOnPopulation_ShouldReturnSortedResult() {
+        CensusAnalyser censusAnalyser = new CensusAnalyser();
+        int csvFileSize = censusAnalyser.loadIndiaCensusData(INDIA_CENSUS_CSV_FILE_PATH);
+        String sortedCensusData = censusAnalyser.getPopulationWiseSortedCensusData();
+        IndiaCensusCSV[] censusCSV = new Gson().fromJson(sortedCensusData, IndiaCensusCSV[].class);
+        Assert.assertEquals(1091014,censusCSV[1].population);
+    }
+
+    @Test
     public void givenIndianStateCSV_ShouldReturnExactCount() {
         CensusAnalyser censusAnalyser = new CensusAnalyser();
         int numofStateCode = censusAnalyser.loadIndianStateCode(INDIA_STATE_CSV);
