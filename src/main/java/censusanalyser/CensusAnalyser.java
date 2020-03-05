@@ -51,11 +51,10 @@ public class CensusAnalyser {
         try (Reader reader = Files.newBufferedReader(Paths.get(indiastateCSV));) {
             ICSVInterface csvBuilder= CSVBuilderFactory.createCSVBuilder();
             Iterator<IndiaStateCodeCSV> finalCensusCSVIterator =csvBuilder.getStateCSVIterator(reader,IndiaStateCodeCSV.class);
-            while(finalCensusCSVIterator.hasNext()){
-                IndiaStateCodeCSV indiaCensusCSV = finalCensusCSVIterator.next();
-                IndiaCensusCSVDTO indiaCensusCSVDTO = censusMap.get(indiaCensusCSV.stateName);
-            }
-
+            Iterable<IndiaStateCodeCSV> csvIterable = () -> finalCensusCSVIterator;
+            StreamSupport.stream(csvIterable.spliterator(),false)
+                    .filter(csvState -> censusMap.get(csvState.stateName) != null)
+                    .forEach(csvState -> censusMap.get(csvState.stateName).stateCode = csvState.stateCode );
             return censusMap.size();
         } catch (IOException e) {
             throw new CensusAnalyserException(e.getMessage(),
