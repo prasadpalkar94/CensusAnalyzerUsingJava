@@ -11,6 +11,10 @@ import java.util.stream.StreamSupport;
 
 public class CensusAnalyser {
 
+    public enum Country{
+        INDIA,US
+    }
+
     List<CensusCSVDTO> censusList = null;
     Map<String, CensusCSVDTO> censusMap = null;
     public CensusAnalyser() {
@@ -19,15 +23,15 @@ public class CensusAnalyser {
     }
 
     Iterator<IndiaCensusCSV>  censusCSVIterator = null;
-    public int loadIndiaCensusData(String... csvFilePath) throws CensusAnalyserException {
+    public int loadIndiaCensusData(Country country,String... csvFilePath) throws CensusAnalyserException {
 
-        censusMap = new CensusLoader().loadCensusData(IndiaCensusCSV.class,csvFilePath);
+        censusMap = new CensusLoader().loadCensusData(country,csvFilePath);
         censusList = censusMap.values().stream().collect(Collectors.toList());
         return censusMap.size();
     }
 
-    public int loadUSCensusData(String... csvFilePath) {
-        censusMap = new CensusLoader().loadCensusData(USCensusCSV.class,csvFilePath);
+    public int loadUSCensusData(Country country,String... csvFilePath) {
+        censusMap = new CensusLoader().loadCensusData(country,csvFilePath);
         censusList = censusMap.values().stream().collect(Collectors.toList());
         return censusMap.size();
     }
