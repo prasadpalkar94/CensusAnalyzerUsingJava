@@ -6,19 +6,17 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-//import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class CensusAnalyser {
 
-   List<IndiaCensusCSVDTO>  censusList = null;
-    //Map<String,IndiaCensusCSVDTO>
+    List<IndiaCensusCSVDTO> censusList = null;
+    Map<String,IndiaCensusCSVDTO> censusMap = null;
     public CensusAnalyser() {
-        this.censusList = new ArrayList<IndiaCensusCSVDTO>();
+        this.censusMap = new HashMap<String, IndiaCensusCSVDTO>();
+        censusList= new ArrayList<IndiaCensusCSVDTO>();
     }
 
 
@@ -31,9 +29,11 @@ public class CensusAnalyser {
             censusCSVIterator=csvBuilder.getStateCSVIterator(reader,IndiaCensusCSV.class);
 
             while(censusCSVIterator.hasNext()){
-                censusList.add(new IndiaCensusCSVDTO(censusCSVIterator.next()));
+                IndiaCensusCSV indiaCensusCSV = censusCSVIterator.next();
+                censusMap.put(indiaCensusCSV.state,new IndiaCensusCSVDTO(indiaCensusCSV));
             }
-            return censusList.size();
+            censusList = censusMap.values().stream().collect(Collectors.toList());
+            return censusMap.size();
 
         } catch (IOException e) {
             throw new CensusAnalyserException(e.getMessage(),
@@ -51,7 +51,12 @@ public class CensusAnalyser {
         try (Reader reader = Files.newBufferedReader(Paths.get(indiastateCSV));) {
             ICSVInterface csvBuilder= CSVBuilderFactory.createCSVBuilder();
             Iterator<IndiaStateCodeCSV> finalCensusCSVIterator =csvBuilder.getStateCSVIterator(reader,IndiaStateCodeCSV.class);
-            return getCount(finalCensusCSVIterator);
+            while(finalCensusCSVIterator.hasNext()){
+                IndiaStateCodeCSV indiaCensusCSV = finalCensusCSVIterator.next();
+                IndiaCensusCSVDTO indiaCensusCSVDTO = censusMap.get(indiaCensusCSV.stateName);
+            }
+
+            return censusMap.size();
         } catch (IOException e) {
             throw new CensusAnalyserException(e.getMessage(),
                     CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
@@ -70,7 +75,7 @@ public class CensusAnalyser {
 
 
     public String getStateWiseSortedCensusData() throws CensusAnalyserException {
-            if ( censusList == null || censusList.size() == 0){
+            if ( censusMap == null || censusMap.size() == 0){
                 throw new CensusAnalyserException("Census_Data_Issue",
                         CensusAnalyserException.ExceptionType.CENSUS_DATA_PROBLEM);
             }
