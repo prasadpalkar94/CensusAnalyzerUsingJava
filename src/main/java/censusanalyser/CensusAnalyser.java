@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class CensusAnalyser {
 
@@ -18,30 +17,15 @@ public class CensusAnalyser {
     List<CensusCSVDTO> censusList = null;
     Map<String, CensusCSVDTO> censusMap = null;
     public CensusAnalyser() {
-       // this.censusMap = new HashMap<String, CensusCSVDTO>();
-        // censusList= new ArrayList<CensusCSVDTO>();
+
     }
 
     Iterator<IndiaCensusCSV>  censusCSVIterator = null;
-    public int loadIndiaCensusData(Country country,String... csvFilePath) throws CensusAnalyserException {
+    public int loadCensusData(Country country, String... csvFilePath) throws CensusAnalyserException {
 
-        censusMap = new CensusLoader().loadCensusData(country,csvFilePath);
+        censusMap = new CensusAdapterFactory().getCensusAdapter(country,csvFilePath);
         censusList = censusMap.values().stream().collect(Collectors.toList());
         return censusMap.size();
-    }
-
-    public int loadUSCensusData(Country country,String... csvFilePath) {
-        censusMap = new CensusLoader().loadCensusData(country,csvFilePath);
-        censusList = censusMap.values().stream().collect(Collectors.toList());
-        return censusMap.size();
-    }
-
-
-
-    private <E> int getCount(Iterator <E> iterator){
-        Iterable<E> csvIterable=  ()-> iterator;
-        int numOfStateCode = (int)StreamSupport.stream(csvIterable.spliterator(),false).count();
-        return numOfStateCode;
     }
 
 
